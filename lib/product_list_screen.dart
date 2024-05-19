@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:curd_app/add_product_screen.dart';
-import 'package:curd_app/product.dart';
+import 'package:curd_app/product_model.dart';
 import 'package:curd_app/update_product_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
@@ -17,7 +17,7 @@ class ProductListScreen extends StatefulWidget {
 class _ProductListScreenState extends State<ProductListScreen> {
   bool _getProductListInProgress = true;
 
-  List<Product> productList = [];
+  List<ProductModel> productList = [];
 
   @override
   void initState() {
@@ -31,17 +31,22 @@ class _ProductListScreenState extends State<ProductListScreen> {
       appBar: AppBar(
         title: const Text('Product List'),
       ),
-      body: Visibility(
-        visible: _getProductListInProgress == false,
-        replacement: const Center(
-          child: CircularProgressIndicator(),
-        ),
-        child: ListView.separated(
-          itemCount: productList.length,
-          itemBuilder: (context, index) {
-            return _buildProductItem(productList[index]);
-          },
-          separatorBuilder: (_, __) => const Divider(),
+      body: RefreshIndicator(
+        onRefresh: () async{
+          _getProductList();
+        },
+        child: Visibility(
+          visible: _getProductListInProgress == false,
+          replacement: const Center(
+            child: CircularProgressIndicator(),
+          ),
+          child: ListView.separated(
+            itemCount: productList.length,
+            itemBuilder: (context, index) {
+              return _buildProductItem(productList[index]);
+            },
+            separatorBuilder: (_, __) => const Divider(),
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -77,16 +82,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
       final jsonProductList = decodeData['data'];
 
       for (Map<String, dynamic> p in jsonProductList) {
-        Product product = Product(
-            id: p['_id'] ?? 'Unknown',
-            productName: p['ProductName'] ?? 'Unknown',
-            productCode: p['ProductCode'] ?? 'Unknown',
-            productQuantity: p['Qty'] ?? 'Unknown',
-            productUnitPrice: p['UnitPrice'] ?? 'Unknown',
-            productTotalPrice: p['TotalPrice'],
-            productImage: p['Img']?? 'Unknown');
+        ProductModel productModel = ProductModel.fromJson(p);
 
-        productList.add(product);
+        productList.add(productModel);
       }
 
     }else {
@@ -97,30 +95,40 @@ class _ProductListScreenState extends State<ProductListScreen> {
     _getProductListInProgress = false;
     setState(() {});
 
-
-
   }
 
-  Widget _buildProductItem(Product product) {
+  Widget _buildProductItem(ProductModel productModel) {
     return ListTile(
-      title:  Text(product.productName),
+      title:  Text(productModel.productName ?? ''),
       subtitle: Wrap(
         spacing: 16,
         children: [
-          Text('Unit Price: ${product.productUnitPrice}'),
-          Text('Quantity: ${product.productQuantity}'),
-          Text('Total Price: ${product.productTotalPrice}'),
+          Text('Unit Price: ${productModel.productUnitPrice}'),
+          Text('Quantity: ${productModel.productQuantity}'),
+          Text('Total Price: ${productModel.productTotalPrice}'),
         ],
       ),
       trailing: Wrap(
         children: [
-          IconButton(onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const UpdateProductScreen()));
-          }, icon: const Icon(Icons.edit)),
+          IconButton(
+              onPressed: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => UpdateProductScreen(
+                      product: productModel,
+                    ),
+                  ),
+                );
+                if(result == true) {
+                  _getProductList();
+                }
+
+              },
+              icon: const Icon(Icons.edit)),
           IconButton(
               onPressed: () {
-                showDeleteConfirmationDialog();
+                showDeleteConfirmationDialog(productModel.id!);
               },
               icon: const Icon(Icons.delete_forever_outlined)),
         ],
@@ -129,7 +137,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
   }
 
-  void showDeleteConfirmationDialog() {
+  void showDeleteConfirmationDialog(String id) {
     showDialog(context: context, builder: (context) {
       return AlertDialog(
         title: const Text('Delete'),
@@ -138,11 +146,44 @@ class _ProductListScreenState extends State<ProductListScreen> {
           TextButton(onPressed: () {
             Navigator.pop(context);
           }, child: const Text('Cancel'),),
-          TextButton(onPressed: () {}, child: const Text('Yes,Delete'),),
+          TextButton(onPressed: () {
+            _deleteProductList(id);
+            Navigator.pop(context);
+          }, child: const Text('Yes,Delete'),),
         ],
       );
     });
   }
 
 
+  Future<void> _deleteProductList(String id) async {
+    _getProductListInProgress = true;
+    setState(() {});
+
+    String deleteProductUrl = 'https://crud.teamrabbil.com/api/v1/DeleteProduct/$id';
+
+    Uri uri = Uri.parse(deleteProductUrl);
+
+    Response response = await get(uri);
+
+    print(response.statusCode);
+    print(response.body);
+
+    if(response.statusCode == 200) {
+      _getProductList();
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Product deleted Successfully')));
+
+    }else {
+      _getProductListInProgress = false;
+      setState(() {});
+
+  ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Delete Product Failed!! Try Again')));
+    }
+
+  }
 }
+
+
