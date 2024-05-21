@@ -57,6 +57,13 @@ class _UpdateProductScreenState extends State<UpdateProductScreen> {
             key: _formKey,
             child: Column(
               children: [
+                const Text(
+                  'Enter Updated Product Information',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(
+                  height: 25,
+                ),
                 TextFormField(
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   controller: _nameTEController,

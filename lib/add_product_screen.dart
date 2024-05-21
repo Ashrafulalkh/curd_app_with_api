@@ -40,6 +40,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
             key: _formKey,
             child: Column(
               children: [
+                const Text(
+                  'Enter New Product Information',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(
+                  height: 25,
+                ),
                 TextFormField(
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   controller: _nameTEController,
