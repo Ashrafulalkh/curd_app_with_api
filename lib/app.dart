@@ -9,7 +9,7 @@ class CrudApp extends StatelessWidget {
     return  MaterialApp(
       theme: _lightThemeData(),
       darkTheme: _darkThemeData(),
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.light,
       home: const ProductListScreen(),
     );
   }
@@ -20,9 +20,11 @@ ThemeData _lightThemeData() {
     brightness: Brightness.light,
     elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
+          elevation: 5.0,
+          shadowColor: Colors.grey,
           foregroundColor: Colors.white,
-          backgroundColor: Colors.purple,
-          padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 13),
+          backgroundColor: Colors.deepPurple,
+          padding: const EdgeInsets.symmetric(horizontal: 25,vertical: 13),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
@@ -39,10 +41,10 @@ ThemeData _lightThemeData() {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: Colors.purple),
+        borderSide: const BorderSide(color: Colors.grey),
       ),
       focusedBorder: OutlineInputBorder(
-        borderSide: const BorderSide(color: Colors.purple),
+        borderSide: const BorderSide(color: Colors.grey),
         borderRadius: BorderRadius.circular(16),
       ),
     ),
@@ -54,8 +56,9 @@ ThemeData _darkThemeData() {
     brightness: Brightness.dark,
     elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
+          elevation: 5.0,
           foregroundColor: Colors.white,
-          backgroundColor: Colors.purple,
+          backgroundColor: Colors.deepPurple,
           padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 13),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
@@ -73,10 +76,10 @@ ThemeData _darkThemeData() {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: Colors.purple),
+        borderSide: const BorderSide(color: Colors.deepPurple),
       ),
       focusedBorder: OutlineInputBorder(
-        borderSide: const BorderSide(color: Colors.purple),
+        borderSide: const BorderSide(color: Colors.deepPurple),
         borderRadius: BorderRadius.circular(16),
       ),
     ),

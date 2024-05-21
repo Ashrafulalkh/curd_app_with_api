@@ -28,8 +28,15 @@ class _ProductListScreenState extends State<ProductListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Product List'),
+        elevation: 2.0,
+        backgroundColor: Colors.deepPurple,
+        centerTitle: true,
+        title: const Text(
+          'Product List',
+          style: TextStyle(color: Colors.white),
+        ),
       ),
       body: RefreshIndicator(
         onRefresh: () async{
@@ -45,17 +52,29 @@ class _ProductListScreenState extends State<ProductListScreen> {
             itemBuilder: (context, index) {
               return _buildProductItem(productList[index]);
             },
-            separatorBuilder: (_, __) => const Divider(),
+            separatorBuilder: (_, __) => const SizedBox(height: 5,),
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const AddProductScreen()));
-        },
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: _buildFloatingActionButton(context),
+    );
+  }
+
+  Widget _buildFloatingActionButton(BuildContext context) {
+    return FloatingActionButton(
+      backgroundColor: Colors.deepPurple,
+      foregroundColor: Colors.white,
+      onPressed: () async {
+        final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const AddProductScreen()));
+
+        if(result == true) {
+          _getProductList();
+        }
+      },
+      child: const Icon(Icons.add),
     );
   }
 
@@ -98,40 +117,63 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
   Widget _buildProductItem(ProductModel productModel) {
-    return ListTile(
-      title:  Text(productModel.productName ?? ''),
-      subtitle: Wrap(
-        spacing: 16,
-        children: [
-          Text('Unit Price: ${productModel.productUnitPrice}'),
-          Text('Quantity: ${productModel.productQuantity}'),
-          Text('Total Price: ${productModel.productTotalPrice}'),
-        ],
-      ),
-      trailing: Wrap(
-        children: [
-          IconButton(
-              onPressed: () async {
-                final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => UpdateProductScreen(
-                      product: productModel,
-                    ),
-                  ),
-                );
-                if(result == true) {
-                  _getProductList();
-                }
-
-              },
-              icon: const Icon(Icons.edit)),
-          IconButton(
-              onPressed: () {
-                showDeleteConfirmationDialog(productModel.id!);
-              },
-              icon: const Icon(Icons.delete_forever_outlined)),
-        ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8,vertical: 5),
+      child: Card(
+        color: Colors.white,
+        elevation: 4.0,
+        shadowColor: Colors.grey,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.0),
+        ),
+        child: ListTile(
+          leading: Image.network(
+            height: 80,
+            width: 80,
+            productModel.productImage ?? 'Unknown',
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                height: 80,
+                width: 80,
+                color: Colors.grey[300],
+                child: const Icon(Icons.image, color: Colors.white),
+              );
+            },
+          ),
+          title:  Text(productModel.productName ?? ''),
+          subtitle: Wrap(
+            spacing: 16,
+            children: [
+              Text('Unit Price: ${productModel.productUnitPrice ?? 'Unknown'}'),
+              Text('Quantity: ${productModel.productQuantity ?? 'Unknown'}'),
+              Text('Total Price: ${productModel.productTotalPrice ?? 'Unknown'}'),
+            ],
+          ),
+          trailing: Wrap(
+            children: [
+              IconButton(
+                  onPressed: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => UpdateProductScreen(
+                          product: productModel,
+                        ),
+                      ),
+                    );
+                    if (result == true) {
+                      _getProductList();
+                    }
+                  },
+                  icon: const Icon(Icons.edit)),
+              IconButton(
+                  onPressed: () {
+                    showDeleteConfirmationDialog(productModel.id!);
+                  },
+                  icon: const Icon(Icons.delete_forever_outlined,color: Colors.red,)),
+            ],
+          ),
+        ),
       ),
     );
 
@@ -140,7 +182,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
   void showDeleteConfirmationDialog(String id) {
     showDialog(context: context, builder: (context) {
       return AlertDialog(
-        title: const Text('Delete'),
+        title: const Center(child: Text('Delete Warning!!',style: TextStyle(color: Colors.red),)),
         content: const Text('Do you want to delete this product?'),
         actions: [
           TextButton(onPressed: () {

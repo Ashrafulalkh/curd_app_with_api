@@ -26,7 +26,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Product'),
+        backgroundColor: Colors.deepPurple,
+        centerTitle: true,
+        title: const Text(
+          'Add Product',
+          style: TextStyle(color: Colors.white),
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -138,7 +143,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   },
                 ),
                 const SizedBox(
-                  height: 18,
+                  height: 20,
                 ),
 
                 Visibility(
@@ -202,7 +207,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('New Product Added')));
 
-      Navigator.pop(context);
+      Navigator.pop(context,true);
     }else{
 
       ScaffoldMessenger.of(context)
